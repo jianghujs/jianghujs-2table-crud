@@ -29,7 +29,8 @@ use table2;
 
 ## 页面
 
-1. 学生管理: studentManagement01.html
+1. 班级管理: classManagement.html
+1. 学生管理: studentManagement.html
 
 ## FAQ
 
