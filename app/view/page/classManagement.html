@@ -20,7 +20,7 @@
           class="elevation-0"
           color="success"
           dark
-          @click="doUiAction('refreshTableData')"
+          @click="doAction('refreshTableData')"
         >
           查询
         </v-btn>
@@ -34,7 +34,7 @@
     <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 " :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
 
       <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0">
-        <v-btn color="success" dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem')">新增</v-btn>
+        <v-btn color="success" dark class="elevation-0 mr-2" @click="doAction('startCreateItem')">新增</v-btn>
         <span class="body-2">共{{ tableData.length }}条记录</span>
       </v-col>
 
@@ -59,7 +59,7 @@
   <!--      {{ getConstantCollectionItemText('level', item.level) }}-->
   <!--    </template>-->
       <template v-slot:item.action="{ item }">
-        <v-btn small class="" :class="tableButton.color" v-for="tableButton of tableButtonList" @click="doUiAction(tableButton.action, {item, button: tableButton})">
+        <v-btn small class="mr-2" :class="tableButton.color" v-for="tableButton of tableButtonList" @click="doAction(tableButton.action, {item, button: tableButton})">
           {{ tableButton.text }}
         </v-btn>
       </template>
@@ -93,9 +93,9 @@
         <v-text-field class="cus-v-input " dense filled single-line v-model="addItem['remarks']"></v-text-field>
       </v-col> 
     </v-row>
-    <v-row class="justify-end pr-6">
-      <v-btn color="success" small @click="doUiAction('createItem')" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">保存</v-btn>
-      <v-btn class="ml-2" small @click="isAddDrawerShow = false" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mr-4': isMobile}">取消</v-btn>
+    <v-row class="justify-end pr-10">
+      <v-btn color="success" @click="doAction('createItem')" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">保存</v-btn>
+      <v-btn class="ml-2 mr-2" @click="isAddDrawerShow = false" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mr-4': isMobile}">取消</v-btn>
     </v-row>
   </v-form>
 </v-navigation-drawer>
@@ -145,9 +145,9 @@
 <!--        </v-menu>-->
 <!--      </v-col>-->
     </v-row>
-    <v-row class="justify-end pr-6">
-      <v-btn color="success" small @click="doUiAction('updateItem')" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">保存</v-btn>
-      <v-btn class="ml-2" small @click="isEditDrawerShow = false" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mr-4': isMobile}">取消</v-btn>
+    <v-row class="justify-end pr-10">
+      <v-btn color="success" @click="doAction('updateItem')" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">保存</v-btn>
+      <v-btn class="ml-2 mr-2" @click="isEditDrawerShow = false" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mr-4': isMobile}">取消</v-btn>
     </v-row>
   </v-form>
 </v-navigation-drawer>
@@ -209,10 +209,51 @@ new Vue({
   },
   watch: {},
   async created() {
-    await this.doUiAction('refreshTableData');
+    await this.doAction('refreshTableData');
   },
   mounted() {},
   methods: {
+
+    async doAction(actionId, actionData) {
+      switch (actionId) {
+        case 'refreshTableData':
+          await this.refreshTableData(actionData);
+          break;
+        case 'startCreateItem':
+          await this.clearItemData(actionData);
+          await this.openCreateItemDialog(actionData);
+          break;
+        case 'createItem':
+          await this.confirmCreateItemDialog(actionData);
+          await this.doCreateItem(actionData);
+          await this.refreshTableData(actionData);
+          await this.closeCreateDrawer(actionData);
+          break;
+        case 'startUpdateItem':
+          await this.prepareItemData(actionData);
+          await this.openUpdateDialog(actionData);
+          break;
+        case 'updateItem':
+          await this.confirmUpdateItemDialog(actionData);
+          await this.doUpdateItem(actionData);
+          await this.refreshTableData(actionData);
+          await this.closeUpdateDrawer(actionData);
+          break;
+        case 'deleteItem':
+          await this.confirmDeleteItemDialog(actionData);
+          await this.doDeleteItem(actionData);
+          await this.refreshTableData(actionData);
+          break;
+        case 'redirect':
+          await this.doRedirect(actionData);
+          break;
+        default:
+          console.error("[doAction] actionId not find", { actionId });
+          break;
+      }
+    },
+
+    // =================================uiAction 公共方法 start ======================================
     /** 
      * uiActionId:  refreshTableData
      * description: ✅获取表格数据
@@ -237,31 +278,33 @@ new Vue({
       this.tableDataFromBackend = rows;
       this.isTableLoading = false;
     },
+    // =================================uiAction 公共方法 end ======================================
 
     /** 
      * uiActionId:  startCreateItem
-     * description: ✅获取表格数据
+     * description: ✅开始新增
      * main:   [{"function":"clearItemData"},{"function":"openCreateItemDialog"}]
     */
     async clearItemData() {
       this.addItem = {};
     },
-
     async openCreateItemDialog() {
       this.isAddDrawerShow = true;
     },
 
     /** 
      * uiActionId:  createItem
-     * description: ✅获取表格数据
+     * description: ✅新增
      * before: [{"function":"confirmCreateItemDialog"}]
      * main:   [{"function":"doCreateItem"},{"function":"refreshTableData"}]
-     * after:  [{"function":"closeDrawerShow"}]
+     * after:  [{"function":"closeCreateDrawer"}]
     */
     async confirmCreateItemDialog() {
-      return window.confirmDialog({title: '新增', content: '确定新增吗？'})
+      // 中断后面的 uiAction function
+      if (await window.confirmDialog({title: "新增", content: "确定新增吗？"}) === false) {
+        throw new Error("[confirmCreateFormDialog] 否");
+      }
     },
-
     async doCreateItem() {
       const { id, ...data } = this.addItem;
       await window.vtoast.loading("新增数据");
@@ -276,36 +319,34 @@ new Vue({
       })
       await window.vtoast.success("新增数据成功");
     },
-
-    async closeDrawerShow() {
-      this.isEditDrawerShow = false;
+    async closeCreateDrawer(){
       this.isAddDrawerShow = false;
     },
 
     /** 
      * uiActionId:  startUpdateItem
-     * description: ✅获取表格数据
+     * description: ✅开始更新
      * main:   [{"function":"prepareItemData"},{"function":"openUpdateDialog"}]
     */
     async prepareItemData({item}) {
       this.editItem = {...item};
     },
-
     async openUpdateDialog() {
       this.isEditDrawerShow = true;
     },
 
     /** 
      * uiActionId:  updateItem
-     * description: ✅获取表格数据
+     * description: ✅更新
      * before: [{"function":"confirmUpdateItemDialog"}]
      * main:   [{"function":"doUpdateItem"},{"function":"refreshTableData"}]
-     * after:  [{"function":"closeDrawerShow"}]
+     * after:  [{"function":"closeUpdateDrawer"}]
     */
     async confirmUpdateItemDialog() {
-      return window.confirmDialog({title: '修改', content: '确定修改吗？'});
+      if (await window.confirmDialog({title: "修改", content: "确定修改吗？"}) === false) {
+        throw new Error("[confirmUpdateItemDialog] 否");
+      }
     },
-
     async doUpdateItem() {
       const { id, ...data } = this.editItem;
       await window.vtoast.loading("修改数据");
@@ -321,17 +362,21 @@ new Vue({
       })
       await window.vtoast.success("修改数据成功");
     },
+    async closeUpdateDrawer(){
+      this.isEditDrawerShow = false;
+    },
 
     /** 
      * uiActionId:  deleteItem
-     * description: ✅获取表格数据
+     * description: ✅删除
      * before: [{"function":"confirmDeleteItemDialog"}]
      * main:   [{"function":"doDeleteItem"},{"function":"refreshTableData"}]
     */
     async confirmDeleteItemDialog() {
-      return window.confirmDialog({title: '删除', content: '确定删除吗？'});
+      if (await window.confirmDialog({title: "删除", content: "确定删除吗？"}) === false) {
+        throw new Error("[confirmDeleteItemDialog] 否");
+      }
     },
-
     async doDeleteItem({item}) {
       const { id } = item;
       await window.vtoast.loading("删除数据");
@@ -350,7 +395,7 @@ new Vue({
 
     /** 
      * uiActionId:  doRedirect
-     * description: ✅获取表格数据
+     * description: ✅跳转详情
      * main:   [{"function":"doRedirect"}]
     */
     async doRedirect({item, button}) {
@@ -361,6 +406,7 @@ new Vue({
         window.location.href = `/${window.appInfo.appId}/page/${button.path}?classId=${item.classId}&title=${item.classId}`
       }
     },
+
     getConstantCollectionItemText(key, _value) {
       const constantCollectionItemFind = this.constantCollection[key].find(({value}) => value === _value);
       if(constantCollectionItemFind) {
