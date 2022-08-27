@@ -254,7 +254,7 @@
     mounted() {
     },
     methods: {
-      async doUiAction(actionId, actionData) {
+      async doUiAction(actionId, uiActionData) {
         switch (actionId) {
           case 'refreshTableData':
             await this.refreshTableData();
@@ -270,7 +270,7 @@
             await this.closeDrawerShow();
             break;
           case 'startUpdateItem':
-            await this.prepareItemData(actionData);
+            await this.prepareItemData(uiActionData);
             await this.openUpdateDialog();
             break;
           case 'updateItem':
@@ -281,11 +281,11 @@
             break;
           case 'deleteItem':
             await this.confirmDeleteItemDialog();
-            await this.doDeleteItem(actionData);
+            await this.doDeleteItem(uiActionData);
             await this.refreshTableData();
             break;
           case 'redirect':
-            await this.doRedirect(actionData);
+            await this.doRedirect(uiActionData);
             break;
           default:
             console.error("[doUiAction] actionId not find", {actionId});
