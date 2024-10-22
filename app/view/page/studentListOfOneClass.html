@@ -455,28 +455,28 @@ new Vue({
       return tableData;
     },
     tableDataComputed() {
-      let data = this.tableData.filter(e => e.classId === this.classId);
-      if(this.filterMap) {
-        return data.filter(row => {
-          for (const key in this.filterMap) {
-            if (this.filterMap[key] && row[key] !== this.filterMap[key]) {
-              return false;
-            }
+          let data = this.tableData.filter(e => e.classId === this.classId);
+          if(this.filterMap) {
+            return data.filter(row => {
+              for (const key in this.filterMap) {
+                if (this.filterMap[key] && row[key] !== this.filterMap[key]) {
+                  return false;
+                }
+              }
+              return true;
+            });
+          } else {
+            return data;
           }
-          return true;
-        });
-      } else {
-        return data;
-      }
-    },
+        },
     tableDataAllot() {
-      return this.tableData.filter(e => e.classId != this.classId);
-    },
+          return this.tableData.filter(e => e.classId != this.classId);
+        },
   },
   async created() {
-    await this.doUiAction('prepareUrlObj');
-    await this.doUiAction('getTableData');
-  },
+        await this.doUiAction('prepareUrlObj');
+        await this.doUiAction('getTableData');
+      },
   methods: {
     async doUiAction(uiActionId, uiActionData) {
       try {
@@ -791,83 +791,83 @@ new Vue({
     },
     // ---------- Custom uiAction >>>>>>>>>>>> --------
     async prepareUrlObj() {
-      const urlObj = new URLSearchParams(location.search);
-      const classId = urlObj.get('classId');
-      const title = urlObj.get('title');
-      if (classId && title) {
-        this.classId = classId;
-        this.title = title;
-      } else {
-        setTimeout(() => {
-          window.vtoast.fail('请从"班级列表"点击"学生"进入');
-        }, 1000);
-        return;
-      }
-    },
-    async prepareCreateFormData() {
-      this.createItem = {
-        classId: this.classId,
-      };
-      this.createItemOrigin = _.cloneDeep(this.createItem);
-    },
-    async confirmAllotItemDialog() {
-      if (await window.confirmDialog({ title: "确定将班级分配给此学生吗", content: "确定分配吗？" }) === false) {
-        throw new Error("[confirmAllotItemDialog] 否");
-      }
-    },
-    async prepareDoBuildRelation(funObj) {
-      this.allotItemId = funObj.id;
-    },
-    async doAllotItem() {
-      await window.jhMask.show();
-      for (let i = 0; i < this.allotTableSelected.length; i++) {
-        window.vtoast.loading(`正在新增 第${i + 1}个`);
-        await this.prepareDoBuildRelation(this.allotTableSelected[i]);
-        await this.buildRelationImpl();
-      }
-      await window.jhMask.hide();
-      await window.vtoast.success("批量新增成功");
-    },
-    async doBuildRelation() {
-      await window.jhMask.show();
-      await window.vtoast.loading("正在新增");
-      await this.buildRelationImpl();
-      await window.jhMask.hide();
-      await window.vtoast.success("新增成功");
-    },
-    async buildRelationImpl() {
-      await window.jianghuAxios({
-        data: {
-          appData: {
-            pageId: 'classListSinglePage',
-            actionId: 'studentList-updateItem',
-            actionData: { classId: this.classId },
-            where: { id: this.allotItemId }
+          const urlObj = new URLSearchParams(location.search);
+          const classId = urlObj.get('classId');
+          const title = urlObj.get('title');
+          if (classId && title) {
+            this.classId = classId;
+            this.title = title;
+          } else {
+            setTimeout(() => {
+              window.vtoast.fail('请从"班级列表"点击"学生"进入');
+            }, 1000);
+            return;
           }
-        }
-      });
-    },
+        },
+    async prepareCreateFormData() {
+          this.createItem = {
+            classId: this.classId,
+          };
+          this.createItemOrigin = _.cloneDeep(this.createItem);
+        },
+    async confirmAllotItemDialog() {
+          if (await window.confirmDialog({ title: "确定将班级分配给此学生吗", content: "确定分配吗？" }) === false) {
+            throw new Error("[confirmAllotItemDialog] 否");
+          }
+        },
+    async prepareDoBuildRelation(funObj) {
+          this.allotItemId = funObj.id;
+        },
+    async doAllotItem() {
+          await window.jhMask.show();
+          for (let i = 0; i < this.allotTableSelected.length; i++) {
+            window.vtoast.loading(`正在新增 第${i + 1}个`);
+            await this.prepareDoBuildRelation(this.allotTableSelected[i]);
+            await this.buildRelationImpl();
+          }
+          await window.jhMask.hide();
+          await window.vtoast.success("批量新增成功");
+        },
+    async doBuildRelation() {
+          await window.jhMask.show();
+          await window.vtoast.loading("正在新增");
+          await this.buildRelationImpl();
+          await window.jhMask.hide();
+          await window.vtoast.success("新增成功");
+        },
+    async buildRelationImpl() {
+          await window.jianghuAxios({
+            data: {
+              appData: {
+                pageId: 'classListSinglePage',
+                actionId: 'studentList-updateItem',
+                actionData: { classId: this.classId },
+                where: { id: this.allotItemId }
+              }
+            }
+          });
+        },
     async clearAllotItemData() {
-      this.allotTableSelected = [];
-      this.allotItemId = null;
-    },
+          this.allotTableSelected = [];
+          this.allotItemId = null;
+        },
     async redirectToClassList(funObj) {
-      window.location.href = `/${window.appInfo.appId}/page/classList`
-    },
+          window.location.href = `/${window.appInfo.appId}/page/classList`
+        },
     tableItemSelected({ item, value }) {
-      if (value) {
-        this.allotTableSelected.push(item);
-      } else {
-        this.allotTableSelected = _.reject(this.allotTableSelected, ['classId', item.classId]);
-      }
-    },
+          if (value) {
+            this.allotTableSelected.push(item);
+          } else {
+            this.allotTableSelected = _.reject(this.allotTableSelected, ['classId', item.classId]);
+          }
+        },
     tableToggleSelectAll({ items, value }) {
-      if (value) {
-        this.allotTableSelected = items;
-      } else {
-        this.allotTableSelected = [];
-      }
-    },
+          if (value) {
+            this.allotTableSelected = items;
+          } else {
+            this.allotTableSelected = [];
+          }
+        },
     // ---------- <<<<<<<<<<< Custom uiAction ---------
 
   }

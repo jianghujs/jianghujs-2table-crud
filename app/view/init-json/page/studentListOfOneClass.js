@@ -1,31 +1,38 @@
 const content = {
   pageType: "jh-page", pageId: "studentListOfOneClass", table: "student", pageName: "班级的学生列表", template: "jhTemplateV4", version: 'v2', 
   resourceList: [
+
     {
       actionId: "selectItemList",
       resourceType: "sql",
-      desc: "✅查询列表",
+      desc: "✅班级的学生列表-查询当前班级下的学生列表",
       resourceData: { table: "student", operation: "select" }
     },
     {
       actionId: "insertItem",
       resourceType: "sql",
-      // resourceHook: { before: [{service:"common",serviceFunction:"generateBizIdOfBeforeHook"}] },
-      desc: "✅添加",
+      desc: "✅班级的学生列表-建立关系",
       resourceData: { table: "student", operation: "jhInsert" }
-    },
-    {
-      actionId: "updateItem",
-      resourceType: "sql",
-      desc: "✅更新",
-      resourceData: { table: "student", operation: "jhUpdate" }
     },
     {
       actionId: "deleteItem",
       resourceType: "sql",
-      desc: "✅删除",
+      desc: "✅班级的学生列表-删除信息",
       resourceData: { table: "student", operation: "jhDelete" }
-    }
+    },
+    {
+      actionId: "updateItem",
+      resourceType: "sql",
+      desc: "✅班级的学生列表-更新信息",
+      resourceData: { table: "student", operation: "jhUpdate" }
+    },
+    {
+      actionId: "selectAllList",
+      resourceType: "sql",
+      desc: "✅班级的学生列表-查询所有学生",
+      resourceData: { table: "student", operation: "select" }
+    },
+
   ], // { actionId: '', resourceType: '', resourceData: {}, resourceHook: {}, desc: '' }
   headContent: [
     { tag: 'jh-page-title', value: "班级的学生列表", attrs: { cols: 12, sm: 6, md:4 }, helpBtn: true, slot: [], backBtn: {

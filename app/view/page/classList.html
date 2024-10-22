@@ -337,23 +337,23 @@ new Vue({
       return tableData;
     },
     tableDataComputed() {
-      if(this.filterMap) {
-        return this.tableData.filter(row => {
-          for (const key in this.filterMap) {
-            if (this.filterMap[key] && row[key] !== this.filterMap[key]) {
-              return false;
-            }
+          if(this.filterMap) {
+            return this.tableData.filter(row => {
+              for (const key in this.filterMap) {
+                if (this.filterMap[key] && row[key] !== this.filterMap[key]) {
+                  return false;
+                }
+              }
+              return true;
+            });
+          } else {
+            return this.tableData;
           }
-          return true;
-        });
-      } else {
-        return this.tableData;
-      }
-    },
+        },
   },
   async created() {
-    await this.doUiAction('getTableData');
-  },
+        await this.doUiAction('getTableData');
+      },
   methods: {
     async doUiAction(uiActionId, uiActionData) {
       try {
@@ -631,8 +631,8 @@ new Vue({
     // ---------- 抽屉列表 uiAction >>>>>>>>>>>> --------
     // ---------- Custom uiAction >>>>>>>>>>>> --------
     async redirectToStudentListForClass(funObj) {
-      window.location.href = `/${window.appInfo.appId}/page/studentListOfOneClass?classId=${funObj.classId}&title=${funObj.className}`
-    },
+          window.location.href = `/${window.appInfo.appId}/page/studentListOfOneClass?classId=${funObj.classId}&title=${funObj.className}`
+        },
     // ---------- <<<<<<<<<<< Custom uiAction ---------
 
   }
